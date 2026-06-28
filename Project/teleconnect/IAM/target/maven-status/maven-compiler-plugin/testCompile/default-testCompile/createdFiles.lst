@@ -1,0 +1,7 @@
+com\teleconnect\iam\controller\AdminControllerAuthorizationTest.class
+com\teleconnect\iam\service\UserServiceTest$AuditOnWrites.class
+com\teleconnect\iam\service\AuditLogServiceTest$GetLogsByUser.class
+com\teleconnect\iam\service\UserServiceTest$NoAuditOnReads.class
+com\teleconnect\iam\service\AuditLogServiceTest$Log.class
+com\teleconnect\iam\service\AuditLogServiceTest$GetAllLogs.class
+com\teleconnect\iam\service\AuditLogServiceTest.class
