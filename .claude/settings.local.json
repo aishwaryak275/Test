@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /mnt/c/Users/2506603/Downloads/teleConnect-extract-backend/teleConnect-merge && ls -la)",
+      "Read(//mnt/c/Users/2506603/Downloads/teleConnect-extract-backend/**)",
+      "PowerShell($tools = @\\('pandoc','wkhtmltopdf','npx','node','python','soffice','libreoffice'\\); foreach \\($t in $tools\\) { $c = Get-Command $t -ErrorAction SilentlyContinue; if \\($c\\) { \"FOUND: $t -> $\\($c.Source\\)\" } else { \"missing: $t\" } })",
+      "PowerShell($edge = @\\(\"$env:ProgramFiles\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\",\"${env:ProgramFiles\\(x86\\)}\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe\"\\); foreach\\($p in $edge\\){ if\\(Test-Path $p\\){ \"EDGE: $p\" } }; $chrome = @\\(\"$env:ProgramFiles\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe\",\"${env:ProgramFiles\\(x86\\)}\\\\Google\\\\Chrome\\\\Application\\\\chrome.exe\"\\); foreach\\($p in $chrome\\){ if\\(Test-Path $p\\){ \"CHROME: $p\" } }; python --version 2>&1 | Out-String)",
+      "PowerShell(.\\\\mvnw.cmd -q -pl analytics-service -DskipTests compile 2>&1)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\2506603\\\\Downloads\"; Remove-Item \"gencode.js\",\"TeleConnect-Full-Source-Code.html\" -Force -ErrorAction SilentlyContinue; Remove-Item \"$env:TEMP\\\\edge_pdf_code\" -Recurse -Force -ErrorAction SilentlyContinue; Get-ChildItem \"TeleConnect-Full-Source-Code.pdf\" | Select-Object Name, @{N='Size';E={\"{0:N0} KB\" -f \\($_.Length/1KB\\)}}, LastWriteTime | Format-Table -AutoSize)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\2506603\\Downloads"
+    ]
+  }
+}
