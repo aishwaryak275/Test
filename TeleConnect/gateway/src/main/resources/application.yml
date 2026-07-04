@@ -1,0 +1,72 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      # Global CORS so a browser/front-end can call the gateway directly
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        # ---- IAM service (auth, users, roles, audit) ----
+        - id: iam-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/teleConnect/iam/**
+
+        # ---- Analytics service (ARPU, churn, utilisation, SLA, reports) ----
+        # NOTE: must be listed BEFORE the subscriber route — its paths
+        # (/teleConnect/api/reports/**) are a more specific prefix of the
+        # subscriber route (/teleConnect/api/**), and routes match in order.
+        - id: analytics-service
+          uri: http://localhost:8089
+          predicates:
+            - Path=/teleConnect/api/reports/**
+
+        # ---- Subscriber service (accounts, SIM lines) ----
+        - id: subscriber-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/teleConnect/api/**
+
+        # ---- Plan service (plans, add-ons, subscriptions) ----
+        - id: plan-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/teleConnect/plan/**
+
+        # ---- Usage service (usage records, summaries) ----
+        - id: usage-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/teleConnect/usage/**
+
+        # ---- Billing service (invoices, payments, disputes, reports) ----
+        - id: billing-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/teleConnect/billing/**
+
+        # ---- Notification service ----
+        - id: notification-service
+          uri: http://localhost:8087
+          predicates:
+            - Path=/teleConnect/notifications/**,/teleConnect/notification/**
+
+        # ---- Fault & Service Request service ----
+        - id: fault-service
+          uri: http://localhost:8090
+          predicates:
+            - Path=/teleConnect/fault/**
+
+# Helpful logging while integrating
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: INFO
