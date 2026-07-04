@@ -10,7 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -18,12 +18,16 @@ import java.util.List;
 @RequestMapping("/teleConnect/api/subscribers")
 public class SubscriberAccountController {
 
-    @Autowired private SubscriberAccountService accountService;
+    private final SubscriberAccountService accountService;
+    private final AuditClient auditClient;
 
-    @Autowired private AuditClient auditClient;
+    public SubscriberAccountController(SubscriberAccountService accountService, AuditClient auditClient) {
+        this.accountService = accountService;
+        this.auditClient = auditClient;
+    }
 
     @PostMapping
-   // @PreAuthorize("hasAnyAuthority('CREATE_USER','VIEW_SUBSCRIBER')")
+    @PreAuthorize("hasAnyAuthority('CREATE_USER','VIEW_SUBSCRIBER')")
     public ResponseEntity<MessageDTO> createAccount(
             @Valid @RequestBody CreateAccountRequest req,
             HttpServletRequest httpReq) {
@@ -34,14 +38,14 @@ public class SubscriberAccountController {
     }
 
     @GetMapping("/{accountId}")
-   // @PreAuthorize("hasAnyAuthority('VIEW_ALL_USERS','VIEW_SUBSCRIBER','VIEW_OWN_PLAN')")
+    @PreAuthorize("hasAnyAuthority('VIEW_SUBSCRIBER')")
     public ResponseEntity<AccountResponseDTO> getAccount(
             @PathVariable Integer accountId) {
         return ResponseEntity.ok(accountService.getAccountById(accountId));
     }
 
     @GetMapping
-    //@PreAuthorize("hasAnyAuthority('VIEW_ALL_USERS','VIEW_SUBSCRIBER')")
+    @PreAuthorize("hasAnyAuthority('VIEW_SUBSCRIBER', 'VIEW_OWN_PLAN')")
     public ResponseEntity<AccountListResponseDTO> getAllAccounts(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long subscriberId) {
@@ -50,13 +54,13 @@ public class SubscriberAccountController {
     }
 
     @GetMapping("/kyc/expired")
-    //@PreAuthorize("hasAnyAuthority('VIEW_ALL_USERS','VIEW_KYC')")
+    @PreAuthorize("hasAnyAuthority('KYC_EXPIRE')")
     public ResponseEntity<List<AccountResponseDTO>> getExpiredKyc() {
         return ResponseEntity.ok(accountService.getExpiredKycAccounts());
     }
 
     @PutMapping("/{accountId}/kyc")
-    //@PreAuthorize("hasAnyAuthority('VIEW_ALL_USERS','VIEW_SUBSCRIBER')")
+    @PreAuthorize("hasAnyAuthority('VIEW_KYC')")
     public ResponseEntity<MessageDTO> updateKyc(
             @PathVariable Integer accountId,
             @Valid @RequestBody UpdateKycRequest req,
@@ -67,7 +71,7 @@ public class SubscriberAccountController {
     }
 
     @PutMapping("/{accountId}/status")
-    //@PreAuthorize("hasAnyAuthority('VIEW_ALL_USERS','VIEW_SUBSCRIBER','VIEW_INVOICE')")
+    @PreAuthorize("hasAnyAuthority('VIEW_SUBSCRIBER')")
     public ResponseEntity<MessageDTO> updateStatus(
             @PathVariable Integer accountId,
             @Valid @RequestBody UpdateAccountStatusRequest req,
@@ -78,7 +82,7 @@ public class SubscriberAccountController {
     }
 
     @DeleteMapping("/{accountId}")
-    //@PreAuthorize("hasAuthority('DELETE_USER')")
+    @PreAuthorize("hasAuthority('DELETE_USER')")
     public ResponseEntity<MessageDTO> deleteAccount(
             @PathVariable Integer accountId,
             HttpServletRequest httpReq) {

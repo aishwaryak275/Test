@@ -19,12 +19,11 @@ import java.util.List;
 public class FaultTicketController {
 
     private final FaultTicketService ticketService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
-
-    FaultTicketController(FaultTicketService ticketService) {
+    public FaultTicketController(FaultTicketService ticketService, AuditClient auditClient) {
         this.ticketService = ticketService;
+        this.auditClient = auditClient;
     }
 
     // POST /teleConnect/fault/createTickets

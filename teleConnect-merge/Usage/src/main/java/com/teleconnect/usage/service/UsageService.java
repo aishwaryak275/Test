@@ -9,7 +9,6 @@ import com.teleconnect.usage.entity.enums.UsageUnit;
 import com.teleconnect.usage.exception.ResourceNotFoundException;
 import com.teleconnect.usage.repository.UsageRecordRepository;
 import com.teleconnect.usage.repository.UsageSummaryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
@@ -19,13 +18,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class UsageService {
-    @Autowired
-    private UsageRecordRepository recordRepo;
-
-    @Autowired
-    private UsageSummaryRepository summaryRepo;
+    private final UsageRecordRepository recordRepo;
+    private final UsageSummaryRepository summaryRepo;
     @Value("${app.alert.warning.threshold:80}")
     private double warningThreshold;
+
+    public UsageService(UsageRecordRepository recordRepo, UsageSummaryRepository summaryRepo) {
+        this.recordRepo = recordRepo;
+        this.summaryRepo = summaryRepo;
+    }
     @Value("${app.alert.critical.threshold:90}")
     private double criticalThreshold;
 

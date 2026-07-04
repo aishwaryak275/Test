@@ -24,11 +24,13 @@ import java.util.stream.Collectors;
 @Service
 public class ReportServiceImpl implements ReportService {
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final BillingDisputeRepository disputeRepository;
 
-    @Autowired
-    private BillingDisputeRepository disputeRepository;
+    public ReportServiceImpl(InvoiceRepository invoiceRepository, BillingDisputeRepository disputeRepository) {
+        this.invoiceRepository = invoiceRepository;
+        this.disputeRepository = disputeRepository;
+    }
 
     @Override
     public OverdueReportResponse getOverdueReport(String region, String agingBucket) {

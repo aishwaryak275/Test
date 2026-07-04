@@ -6,13 +6,10 @@ import com.teleconnect.iam.dto.request.RegisterRequest;
 import com.teleconnect.iam.dto.response.LoginResponseDTO;
 import com.teleconnect.iam.dto.response.MessageDTO;
 import com.teleconnect.iam.dto.response.RegisterResponseDTO;
-import com.teleconnect.iam.entity.User;
-import com.teleconnect.iam.repository.UserRepository;
-import com.teleconnect.iam.service.AuditLogService;
 import com.teleconnect.iam.service.UserService;
+import com.teleconnect.iam.service.AuditLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +19,13 @@ import java.security.Principal;
 @RequestMapping("/teleConnect/iam/api/auth")
 public class AuthController {
 
-    @Autowired private UserService userService;
-    @Autowired private AuditLogService auditLogService;
-    @Autowired private UserRepository userRepo;
+    private final UserService userService;
+    private final AuditLogService auditLogService;
+
+    public AuthController(UserService userService, AuditLogService auditLogService) {
+        this.userService = userService;
+        this.auditLogService = auditLogService;
+    }
 
     // POST /auth/register
     @PostMapping("/register")
@@ -46,11 +47,11 @@ public class AuthController {
             throw new RuntimeException("Not authenticated");
         }
 
-        User user = userRepo.findByEmail(principal.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Long userId = userService.findUserIdByEmail(principal.getName());
+        if (userId == null) throw new RuntimeException("User not found");
 
         // Pass the real userId so audit_logs.user_id is never null
-        auditLogService.log(user.getUserId(), "USER_LOGOUT", "IAM", "N/A");
+        auditLogService.log(userId, "USER_LOGOUT", "IAM", "N/A");
 
         return ResponseEntity.ok(new MessageDTO("Logged out successfully"));
     }

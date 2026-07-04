@@ -1,4 +1,4 @@
-package com.teleconnect.iam.security;
+package com.teleconnect.usage.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -46,8 +46,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 var auth = new UsernamePasswordAuthenticationToken(email, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                // Threshold-based sliding expiry: if less than the threshold
-                // remains, issue a fresh token in the response Authorization header.
                 long remainingMs = jwtUtil.getExpiryMs(token) - System.currentTimeMillis();
                 if (remainingMs > 0 && remainingMs < renewalThresholdMs) {
                     String newToken = jwtUtil.generateToken(email, perms);
@@ -55,6 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         }
+
         chain.doFilter(req, res);
     }
 }

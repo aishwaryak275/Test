@@ -1,9 +1,10 @@
-package com.teleconnect.iam.security;
+package com.teleconnect.billing_service.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -46,8 +47,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 var auth = new UsernamePasswordAuthenticationToken(email, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                // Threshold-based sliding expiry: if less than the threshold
-                // remains, issue a fresh token in the response Authorization header.
                 long remainingMs = jwtUtil.getExpiryMs(token) - System.currentTimeMillis();
                 if (remainingMs > 0 && remainingMs < renewalThresholdMs) {
                     String newToken = jwtUtil.generateToken(email, perms);
@@ -55,6 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
             }
         }
+
         chain.doFilter(req, res);
     }
 }

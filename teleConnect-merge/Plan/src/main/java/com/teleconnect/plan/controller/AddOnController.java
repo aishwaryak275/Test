@@ -8,8 +8,8 @@ import com.teleconnect.common.audit.AuditAction;
 import com.teleconnect.common.audit.AuditModule;
 import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -17,13 +17,16 @@ import java.util.List;
 @RequestMapping("/plan")
 public class AddOnController {
 
-    @Autowired
-    private AddOnService service;
+    private final AddOnService service;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public AddOnController(AddOnService service, AuditClient auditClient) {
+        this.service = service;
+        this.auditClient = auditClient;
+    }
 
     @PostMapping("/createAddOns")
+    @PreAuthorize("hasAuthority('MANAGE_PLANS')")
     public ResponseEntity<?> createAddOn(
             @RequestBody AddOnRequest req,
             HttpServletRequest httpReq) {
@@ -55,6 +58,7 @@ public class AddOnController {
     }
 
     @GetMapping("/getAllAddOns")
+    @PreAuthorize("hasAuthority('VIEW_PLAN')")
     public ResponseEntity<?> getAllAddOns() {
         List<AddOnResponse> addOns = service.getAllAddOns();
         if (addOns.isEmpty())
@@ -64,6 +68,7 @@ public class AddOnController {
     }
 
     @GetMapping("/getAddOns/{addOnId}")
+    @PreAuthorize("hasAuthority('VIEW_PLAN')")
     public ResponseEntity<?> getAddOnById(
             @PathVariable Integer addOnId) {
         AddOnResponse addOn = service.getAddOnById(addOnId);

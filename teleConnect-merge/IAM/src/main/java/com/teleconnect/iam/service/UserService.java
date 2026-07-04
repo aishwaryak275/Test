@@ -8,7 +8,6 @@ import com.teleconnect.iam.entity.User;
 import com.teleconnect.iam.repository.RoleRepository;
 import com.teleconnect.iam.repository.UserRepository;
 import com.teleconnect.iam.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,11 +18,19 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
 
-    @Autowired private UserRepository userRepo;
-    @Autowired private RoleRepository roleRepo;
-    @Autowired private PasswordEncoder passwordEncoder;
-    @Autowired private JwtUtil jwtUtil;
-    @Autowired private AuditLogService auditLogService;
+    private final UserRepository userRepo;
+    private final RoleRepository roleRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuditLogService auditLogService;
+
+    public UserService(UserRepository userRepo, RoleRepository roleRepo, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, AuditLogService auditLogService) {
+        this.userRepo = userRepo;
+        this.roleRepo = roleRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.auditLogService = auditLogService;
+    }
 
     @Value("${app.default.staff.password}")
     private String defaultPassword;
@@ -215,5 +222,19 @@ public class UserService {
         User saved = userRepo.save(user);
         auditLogService.log(saved.getUserId(), "STAFF_ACCOUNT_CREATED", "IAM", "ADMIN");
         return new RegisterResponseDTO("Staff account created successfully");
+    }
+
+    // -- helper used by controllers to avoid direct repository access ----------
+    public Long findUserIdByEmail(String email) {
+        return userRepo.findByEmail(email).map(User::getUserId).orElse(null);
+    }
+
+    public List<Role> getAllRoles() {
+        return roleRepo.findAll();
+    }
+
+    public Role getRoleById(Integer id) {
+        return roleRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Role not found"));
     }
 }

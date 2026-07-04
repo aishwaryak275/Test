@@ -25,11 +25,13 @@ import java.util.stream.Collectors;
 @Service
 public class BillingDisputeServiceImpl implements BillingDisputeService {
 
-    @Autowired
-    private BillingDisputeRepository disputeRepository;
+    private final BillingDisputeRepository disputeRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
+    public BillingDisputeServiceImpl(BillingDisputeRepository disputeRepository, InvoiceRepository invoiceRepository) {
+        this.disputeRepository = disputeRepository;
+        this.invoiceRepository = invoiceRepository;
+    }
 
     @Override
     @Transactional

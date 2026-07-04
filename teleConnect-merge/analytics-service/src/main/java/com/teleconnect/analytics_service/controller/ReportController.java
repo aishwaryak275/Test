@@ -24,12 +24,11 @@ import java.time.LocalDate;
 public class ReportController {
 
     private final ReportService reportService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
-
-    public ReportController(ReportService reportService) {
+    public ReportController(ReportService reportService, AuditClient auditClient) {
         this.reportService = reportService;
+        this.auditClient = auditClient;
     }
 
     /**

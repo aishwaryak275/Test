@@ -28,11 +28,13 @@ import java.util.stream.Collectors;
 @Service
 public class BillingCycleServiceImpl implements BillingCycleService {
 
-    @Autowired
-    private BillingCycleRepository billingCycleRepository;
+    private final BillingCycleRepository billingCycleRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
+    public BillingCycleServiceImpl(BillingCycleRepository billingCycleRepository, InvoiceRepository invoiceRepository) {
+        this.billingCycleRepository = billingCycleRepository;
+        this.invoiceRepository = invoiceRepository;
+    }
 
     @Override
     @Transactional

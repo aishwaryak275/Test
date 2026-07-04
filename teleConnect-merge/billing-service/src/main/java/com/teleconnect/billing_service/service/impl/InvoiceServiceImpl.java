@@ -40,14 +40,15 @@ import java.util.stream.Collectors;
 @Service
 public class InvoiceServiceImpl implements InvoiceService {
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
+    private final InvoiceRepository invoiceRepository;
+    private final BillingCycleRepository billingCycleRepository;
+    private final PaymentRepository paymentRepository;
 
-    @Autowired
-    private BillingCycleRepository billingCycleRepository;
-
-    @Autowired
-    private PaymentRepository paymentRepository;
+    public InvoiceServiceImpl(InvoiceRepository invoiceRepository, BillingCycleRepository billingCycleRepository, PaymentRepository paymentRepository) {
+        this.invoiceRepository = invoiceRepository;
+        this.billingCycleRepository = billingCycleRepository;
+        this.paymentRepository = paymentRepository;
+    }
 
     @Override
     @Transactional

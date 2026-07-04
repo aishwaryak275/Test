@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +20,13 @@ import java.util.List;
 @RequestMapping("/billing/payments")
 public class PaymentController {
 
-    @Autowired
-    private PaymentService paymentService;
+    private final PaymentService paymentService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public PaymentController(PaymentService paymentService, AuditClient auditClient) {
+        this.paymentService = paymentService;
+        this.auditClient = auditClient;
+    }
 
     /**
      * POST /api/billing/payments
@@ -32,6 +35,7 @@ public class PaymentController {
      * Marks the invoice as PAID on success.
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<PaymentResponse> makePayment(
             @Valid @RequestBody PaymentRequest request,
             HttpServletRequest httpReq) {
@@ -45,6 +49,7 @@ public class PaymentController {
      * Retrieve a single payment record by its ID.
      */
     @GetMapping("/{paymentId}")
+    @PreAuthorize("hasAuthority('PAY_BILL')")
     public ResponseEntity<PaymentResponse> getPaymentById(
             @PathVariable Long paymentId) {
         return ResponseEntity.ok(paymentService.getPaymentById(paymentId));
@@ -55,6 +60,7 @@ public class PaymentController {
      * Retrieve all payment records for a given invoice.
      */
     @GetMapping("/invoice/{invoiceId}")
+    @PreAuthorize("hasAuthority('PAY_BILL')")
     public ResponseEntity<List<PaymentResponse>> getPaymentsByInvoice(
             @PathVariable Long invoiceId) {
         return ResponseEntity.ok(paymentService.getPaymentsByInvoice(invoiceId));

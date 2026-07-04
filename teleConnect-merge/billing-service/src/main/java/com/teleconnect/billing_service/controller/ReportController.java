@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.LocalDate;
 
@@ -18,8 +19,11 @@ import java.time.LocalDate;
 @RequestMapping("/billing/reports")
 public class ReportController {
 
-    @Autowired
-    private ReportService reportService;
+    private final ReportService reportService;
+
+    public ReportController(ReportService reportService) {
+        this.reportService = reportService;
+    }
 
     /**
      * GET /teleConnect/billing/reports/overdue
@@ -27,6 +31,7 @@ public class ReportController {
      * Query: region=South, agingBucket=0-30
      */
     @GetMapping("/overdue")
+    @PreAuthorize("hasAuthority('BILLING_REPORT')")
     public ResponseEntity<OverdueReportResponse> getOverdueReport(
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String agingBucket) {
@@ -39,6 +44,7 @@ public class ReportController {
      * Query: fromDate=2026-05-01, toDate=2026-05-31, region=South
      */
     @GetMapping("/collection")
+    @PreAuthorize("hasAuthority('BILLING_REPORT')")
     public ResponseEntity<CollectionReportResponse> getCollectionReport(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
@@ -52,6 +58,7 @@ public class ReportController {
      * Query: fromDate=2026-05-01, toDate=2026-05-31
      */
     @GetMapping("/disputes/summary")
+    @PreAuthorize("hasAuthority('BILLING_REPORT')")
     public ResponseEntity<DisputeSummaryResponse> getDisputeSummary(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {

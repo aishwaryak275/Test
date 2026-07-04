@@ -1,16 +1,15 @@
 package com.teleconnect.analytics_service.repository;
 
-import com.teleconnect.analytics_service.entity.BillingDispute;
-import com.teleconnect.analytics_service.enums.DisputeStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
 import java.time.LocalDate;
 import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.teleconnect.analytics_service.entity.BillingDispute;
+import com.teleconnect.analytics_service.enums.DisputeStatus;
+
 public interface BillingDisputeRepository extends JpaRepository<BillingDispute, Long> {
 
     long countByStatus(DisputeStatus status);

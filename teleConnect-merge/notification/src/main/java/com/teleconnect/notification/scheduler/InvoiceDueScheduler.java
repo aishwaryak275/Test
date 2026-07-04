@@ -18,8 +18,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class InvoiceDueScheduler {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
+
+    public InvoiceDueScheduler(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @Value("${app.notification.invoice-due-reminder-days:2}")
     private int reminderDays;

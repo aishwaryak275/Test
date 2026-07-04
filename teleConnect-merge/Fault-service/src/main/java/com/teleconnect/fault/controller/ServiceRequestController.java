@@ -20,12 +20,11 @@ import java.util.List;
 public class ServiceRequestController {
 
     private final ServiceRequestService requestService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
-
-    ServiceRequestController(ServiceRequestService requestService) {
+    public ServiceRequestController(ServiceRequestService requestService, AuditClient auditClient) {
         this.requestService = requestService;
+        this.auditClient = auditClient;
     }
 
     // POST /teleConnect/fault/createRequests

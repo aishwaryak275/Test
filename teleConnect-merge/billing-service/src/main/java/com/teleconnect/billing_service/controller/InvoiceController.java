@@ -14,6 +14,7 @@ import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,11 +29,13 @@ import java.util.List;
 @RequestMapping("/billing/invoices")
 public class InvoiceController {
 
-    @Autowired
-    private InvoiceService invoiceService;
+    private final InvoiceService invoiceService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public InvoiceController(InvoiceService invoiceService, AuditClient auditClient) {
+        this.invoiceService = invoiceService;
+        this.auditClient = auditClient;
+    }
 
     // ── Static-path endpoints first (must come before /{invoiceId}) ────────────
 
@@ -40,6 +43,7 @@ public class InvoiceController {
      * POST /teleConnect/billing/invoices/generate
      */
     @PostMapping("/generate")
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<InvoiceResponse> generateInvoice(
             @Valid @RequestBody InvoiceGenerationRequest request,
             HttpServletRequest httpReq) {
@@ -52,6 +56,7 @@ public class InvoiceController {
      * GET /teleConnect/billing/invoices/account/{accountId}
      */
     @GetMapping("/account/{accountId}")
+    @PreAuthorize("hasAuthority('VIEW_INVOICE')")
     public ResponseEntity<List<InvoiceResponse>> getInvoicesByAccount(
             @PathVariable Long accountId,
             @RequestParam(required = false) InvoiceStatus status,
@@ -65,6 +70,7 @@ public class InvoiceController {
      * GET /teleConnect/billing/invoices/status/{status}
      */
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<List<InvoiceResponse>> getInvoicesByStatus(@PathVariable InvoiceStatus status) {
         return ResponseEntity.ok(invoiceService.getInvoicesByStatus(status));
     }
@@ -73,6 +79,7 @@ public class InvoiceController {
      * PUT /teleConnect/billing/invoices/mark-overdue
      */
     @PutMapping("/mark-overdue")
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<MessageResponse> markOverdue(HttpServletRequest httpReq) {
         invoiceService.markOverdueInvoices();
         auditClient.record(AuditAction.MARK_INVOICES_OVERDUE, AuditModule.BILLING, httpReq);
@@ -85,6 +92,7 @@ public class InvoiceController {
      * GET /teleConnect/billing/invoices/{invoiceId}
      */
     @GetMapping("/{invoiceId}")
+    @PreAuthorize("hasAuthority('VIEW_INVOICE')")
     public ResponseEntity<InvoiceResponse> getInvoice(@PathVariable Long invoiceId) {
         return ResponseEntity.ok(invoiceService.getInvoiceById(invoiceId));
     }
@@ -93,6 +101,7 @@ public class InvoiceController {
      * PUT /teleConnect/billing/invoices/{invoiceId}/send
      */
     @PutMapping("/{invoiceId}/send")
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<InvoiceResponse> sendInvoice(@PathVariable Long invoiceId,
             HttpServletRequest httpReq) {
         InvoiceResponse result = invoiceService.sendInvoice(invoiceId);
@@ -105,6 +114,7 @@ public class InvoiceController {
      * Body: { "amountPaid": 949.32, "paymentMethod": "UPI", "transactionRef": "TXN98765" }
      */
     @PostMapping("/{invoiceId}/pay")
+    @PreAuthorize("hasAuthority('PAY_BILL')")
     public ResponseEntity<MessageResponse> payInvoice(
             @PathVariable Long invoiceId,
             @Valid @RequestBody PaymentRequest request,
@@ -119,6 +129,7 @@ public class InvoiceController {
      * Body: { "feeAmount": 100.00, "reason": "Overdue past grace period" }
      */
     @PostMapping("/{invoiceId}/latefee")
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<MessageResponse> applyLateFee(
             @PathVariable Long invoiceId,
             @Valid @RequestBody LateFeeRequest request,
@@ -133,6 +144,7 @@ public class InvoiceController {
      * Body: { "waiverReason": "Goodwill gesture", "authorisedBy": "user-501" }
      */
     @PostMapping("/{invoiceId}/latefee/waive")
+    @PreAuthorize("hasAuthority('EDIT_INVOICE')")
     public ResponseEntity<MessageResponse> waiveLateFee(
             @PathVariable Long invoiceId,
             @Valid @RequestBody LateFeeWaiverRequest request,
@@ -146,6 +158,7 @@ public class InvoiceController {
      * GET /teleConnect/billing/invoices/{invoiceId}/download
      */
     @GetMapping("/{invoiceId}/download")
+    @PreAuthorize("hasAuthority('VIEW_INVOICE')")
     public ResponseEntity<byte[]> downloadInvoice(@PathVariable Long invoiceId) {
         byte[] pdfBytes = invoiceService.downloadInvoicePdf(invoiceId);
         HttpHeaders headers = new HttpHeaders();
@@ -159,6 +172,7 @@ public class InvoiceController {
      * Downloads a full account statement PDF with all billing cycles and charges.
      */
     @GetMapping("/account/{accountId}/statement")
+    @PreAuthorize("hasAuthority('VIEW_INVOICE')")
     public ResponseEntity<byte[]> downloadAccountStatement(@PathVariable Long accountId) {
         byte[] pdfBytes = invoiceService.downloadAccountStatementPdf(accountId);
         HttpHeaders headers = new HttpHeaders();

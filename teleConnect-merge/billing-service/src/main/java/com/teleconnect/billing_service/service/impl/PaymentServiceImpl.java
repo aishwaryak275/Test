@@ -21,11 +21,13 @@ import java.util.stream.Collectors;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    private final PaymentRepository paymentRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    @Autowired
-    private InvoiceRepository invoiceRepository;
+    public PaymentServiceImpl(PaymentRepository paymentRepository, InvoiceRepository invoiceRepository) {
+        this.paymentRepository = paymentRepository;
+        this.invoiceRepository = invoiceRepository;
+    }
 
     @Override
     @Transactional

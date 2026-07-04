@@ -18,9 +18,13 @@ import java.util.List;
 @RequestMapping("/teleConnect/api/subscribers")
 public class SimLineController {
 
-    @Autowired private SimLineService simLineService;
+    private final SimLineService simLineService;
+    private final AuditClient auditClient;
 
-    @Autowired private AuditClient auditClient;
+    public SimLineController(SimLineService simLineService, AuditClient auditClient) {
+        this.simLineService = simLineService;
+        this.auditClient = auditClient;
+    }
 
     @PostMapping("/{accountId}/simLines")
     @PreAuthorize("hasAnyAuthority('CREATE_USER','VIEW_SUBSCRIBER')")

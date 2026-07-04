@@ -4,7 +4,6 @@ import com.teleconnect.plan.dto.request.TelecomPlanRequest;
 import com.teleconnect.plan.dto.response.TelecomPlanResponse;
 import com.teleconnect.plan.entity.TelecomPlan;
 import com.teleconnect.plan.repository.TelecomPlanRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,8 +11,11 @@ import java.util.stream.Collectors;
 @Service
 public class TelecomPlanService {
 
-    @Autowired
-    private TelecomPlanRepository repository;
+    private final TelecomPlanRepository repository;
+
+    public TelecomPlanService(TelecomPlanRepository repository) {
+        this.repository = repository;
+    }
 
     private TelecomPlanResponse toDTO(TelecomPlan p) {
         TelecomPlanResponse dto = new TelecomPlanResponse();

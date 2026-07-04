@@ -13,8 +13,13 @@ import java.util.stream.Collectors;
 @Service
 public class SimLineService {
 
-    @Autowired private SimLineRepository simLineRepo;
-    @Autowired private SubscriberAccountRepository accountRepo;
+    private final SimLineRepository simLineRepo;
+    private final SubscriberAccountRepository accountRepo;
+
+    public SimLineService(SimLineRepository simLineRepo, SubscriberAccountRepository accountRepo) {
+        this.simLineRepo = simLineRepo;
+        this.accountRepo = accountRepo;
+    }
 
     private SimLineResponseDTO toDTO(SimLine sl) {
         SimLineResponseDTO dto = new SimLineResponseDTO();

@@ -18,8 +18,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class UsageAlertScheduler {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
+
+    public UsageAlertScheduler(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @Value("${app.scheduler.usage-alert.cron:0 0 * * * *}")
     private String cron;

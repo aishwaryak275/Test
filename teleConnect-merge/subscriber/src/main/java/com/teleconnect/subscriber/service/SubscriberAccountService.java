@@ -14,8 +14,13 @@ import java.util.stream.Collectors;
 @Service
 public class SubscriberAccountService {
 
-    @Autowired private SubscriberAccountRepository accountRepo;
-    @Autowired private SimLineRepository simLineRepo;
+    private final SubscriberAccountRepository accountRepo;
+    private final SimLineRepository simLineRepo;
+
+    public SubscriberAccountService(SubscriberAccountRepository accountRepo, SimLineRepository simLineRepo) {
+        this.accountRepo = accountRepo;
+        this.simLineRepo = simLineRepo;
+    }
 
     private AccountResponseDTO toDTO(SubscriberAccount a) {
         AccountResponseDTO dto = new AccountResponseDTO();

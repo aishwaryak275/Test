@@ -18,23 +18,27 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/billing/cycles")
 public class BillingCycleController {
 
-    @Autowired
-    private BillingCycleService billingCycleService;
+    private final BillingCycleService billingCycleService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public BillingCycleController(BillingCycleService billingCycleService, AuditClient auditClient) {
+        this.billingCycleService = billingCycleService;
+        this.auditClient = auditClient;
+    }
 
     /**
      * POST /teleConnect/billing/cycles
      * Creates a new billing cycle for an account.
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('BILLING_CYCLE')")
     public ResponseEntity<BillingCycleResponse> createBillingCycle(
             @Valid @RequestBody BillingCycleRequest request,
             HttpServletRequest httpReq) {
@@ -49,6 +53,7 @@ public class BillingCycleController {
      * NOTE: Must be declared before /{cycleId} to avoid path conflict.
      */
     @PostMapping("/generate")
+    @PreAuthorize("hasAuthority('BILLING_CYCLE')")
     public ResponseEntity<MessageResponse> generateInvoices(
             @Valid @RequestBody CycleGenerationRequest request,
             HttpServletRequest httpReq) {
@@ -63,6 +68,7 @@ public class BillingCycleController {
      * NOTE: Must be declared before /{cycleId} to avoid "account" being parsed as Long.
      */
     @GetMapping("/account/{accountId}")
+    @PreAuthorize("hasAuthority('BILLING_CYCLE')")
     public ResponseEntity<List<BillingCycleResponse>> getCyclesByAccount(
             @PathVariable Long accountId,
             @RequestParam(required = false) BillingCycleStatus status,
@@ -79,6 +85,7 @@ public class BillingCycleController {
      * NOTE: Must be declared before /{cycleId} GET to avoid conflict.
      */
     @PutMapping("/{cycleId}/close")
+    @PreAuthorize("hasAuthority('BILLING_CYCLE')")
     public ResponseEntity<MessageResponse> closeCycle(@PathVariable Long cycleId,
             HttpServletRequest httpReq) {
         billingCycleService.closeBillingCycle(cycleId);
@@ -91,6 +98,7 @@ public class BillingCycleController {
      * Updates the status of a billing cycle.
      */
     @PutMapping("/{cycleId}/status")
+    @PreAuthorize("hasAuthority('BILLING_CYCLE')")
     public ResponseEntity<BillingCycleResponse> updateStatus(
             @PathVariable Long cycleId,
             @RequestParam BillingCycleStatus status,
@@ -106,6 +114,7 @@ public class BillingCycleController {
      * NOTE: Declared last — only matches numeric IDs.
      */
     @GetMapping("/{cycleId}")
+    @PreAuthorize("hasAuthority('BILLING_CYCLE')")
     public ResponseEntity<BillingCycleResponse> getBillingCycle(@PathVariable Long cycleId) {
         return ResponseEntity.ok(billingCycleService.getBillingCycleById(cycleId));
     }

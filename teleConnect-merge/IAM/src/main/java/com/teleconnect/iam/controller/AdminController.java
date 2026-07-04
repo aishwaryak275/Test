@@ -8,14 +8,10 @@ import com.teleconnect.iam.dto.response.AuditLogResponseDTO;
 import com.teleconnect.iam.dto.response.MessageDTO;
 import com.teleconnect.iam.dto.response.RegisterResponseDTO;
 import com.teleconnect.iam.entity.Role;
-import com.teleconnect.iam.entity.User;
-import com.teleconnect.iam.repository.RoleRepository;
-import com.teleconnect.iam.repository.UserRepository;
-import com.teleconnect.iam.service.AuditLogService;
 import com.teleconnect.iam.service.UserService;
+import com.teleconnect.iam.service.AuditLogService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,10 +24,13 @@ import java.util.List;
 @RequestMapping("/teleConnect/iam/api")
 public class AdminController {
 
-    @Autowired private UserService userService;
-    @Autowired private RoleRepository roleRepo;
-    @Autowired private AuditLogService auditLogService;
-    @Autowired private UserRepository userRepo;
+    private final UserService userService;
+    private final AuditLogService auditLogService;
+
+    public AdminController(UserService userService, AuditLogService auditLogService) {
+        this.userService = userService;
+        this.auditLogService = auditLogService;
+    }
 
     // POST /admin/users/createStaff — Admin only (CREATE_USER permission)
     @PostMapping("/admin/users/createStaff")
@@ -59,15 +58,14 @@ public class AdminController {
     @GetMapping("/roles")
     @PreAuthorize("hasAuthority('VIEW_ALL_USERS')")
     public ResponseEntity<List<Role>> getRoles() {
-        return ResponseEntity.ok(roleRepo.findAll());
+        return ResponseEntity.ok(userService.getAllRoles());
     }
 
     // GET /roles/{roleId}/permissions — Admin only (VIEW_ALL_USERS)
     @GetMapping("/roles/{roleId}/permissions")
     @PreAuthorize("hasAuthority('VIEW_ALL_USERS')")
     public ResponseEntity<Role> getRolePermissions(@PathVariable Integer roleId) {
-        return ResponseEntity.ok(roleRepo.findById(roleId)
-            .orElseThrow(() -> new RuntimeException("Role not found")));
+        return ResponseEntity.ok(userService.getRoleById(roleId));
     }
 
     // GET /auditLogs — Compliance + Admin (VIEW_AUDIT_LOGS)
@@ -105,6 +103,6 @@ public class AdminController {
         if (auth == null || auth.getName() == null) {
             return null;
         }
-        return userRepo.findByEmail(auth.getName()).map(User::getUserId).orElse(null);
+        return userService.findUserIdByEmail(auth.getName());
     }
 }

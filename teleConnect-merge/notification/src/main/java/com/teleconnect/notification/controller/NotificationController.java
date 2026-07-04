@@ -9,9 +9,9 @@ import com.teleconnect.common.audit.AuditModule;
 import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -20,15 +20,18 @@ import java.util.Map;
 @RequestMapping("/teleConnect/notifications")
 public class NotificationController {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public NotificationController(NotificationService notificationService, AuditClient auditClient) {
+        this.notificationService = notificationService;
+        this.auditClient = auditClient;
+    }
 
     // ── CREATE ────────────────────────────────────────────────────────────────
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('CREATE_NOTIFICATION')")
     public ResponseEntity<Map<String, String>> createNotification(
             @Valid @RequestBody NotificationRequest req,
             HttpServletRequest httpReq) {

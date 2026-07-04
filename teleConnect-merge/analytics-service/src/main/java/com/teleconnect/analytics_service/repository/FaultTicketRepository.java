@@ -1,17 +1,16 @@
 package com.teleconnect.analytics_service.repository;
 
-import com.teleconnect.analytics_service.entity.FaultTicket;
-import com.teleconnect.analytics_service.enums.FaultPriority;
-import com.teleconnect.analytics_service.enums.FaultStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.teleconnect.analytics_service.entity.FaultTicket;
+import com.teleconnect.analytics_service.enums.FaultPriority;
+import com.teleconnect.analytics_service.enums.FaultStatus;
+
 public interface FaultTicketRepository extends JpaRepository<FaultTicket, Long> {
 
     List<FaultTicket> findByStatusIn(List<FaultStatus> statuses);

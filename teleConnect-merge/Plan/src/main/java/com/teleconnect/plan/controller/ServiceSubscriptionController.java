@@ -8,8 +8,8 @@ import com.teleconnect.common.audit.AuditAction;
 import com.teleconnect.common.audit.AuditModule;
 import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -17,13 +17,16 @@ import java.util.List;
 @RequestMapping("/plan")
 public class ServiceSubscriptionController {
 
-    @Autowired
-    private ServiceSubscriptionService service;
+    private final ServiceSubscriptionService service;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public ServiceSubscriptionController(ServiceSubscriptionService service, AuditClient auditClient) {
+        this.service = service;
+        this.auditClient = auditClient;
+    }
 
     @PostMapping("/createSubscriptions")
+    @PreAuthorize("hasAuthority('CREATE_SUB')")
     public ResponseEntity<?> createSubscription(
             @RequestBody ServiceSubscriptionRequest req,
             HttpServletRequest httpReq) {
@@ -39,6 +42,7 @@ public class ServiceSubscriptionController {
     }
 
     @GetMapping("/getAllSubscriptions")
+    @PreAuthorize("hasAuthority('GET_SUB') and !hasAuthority('VIEW_PLAN')")
     public ResponseEntity<?> getAllSubscriptions() {
         List<ServiceSubscriptionResponse> list =
             service.getAllSubscriptions();
@@ -49,6 +53,7 @@ public class ServiceSubscriptionController {
     }
 
     @GetMapping("/getSubscriptions/{subscriptionId}")
+    @PreAuthorize("hasAuthority('GET_SUB')")
     public ResponseEntity<?> getSubscriptionById(
             @PathVariable Integer subscriptionId) {
         ServiceSubscriptionResponse sub =
@@ -62,6 +67,7 @@ public class ServiceSubscriptionController {
     }
 
     @PutMapping("/updateSubscriptions/{subscriptionId}")
+    @PreAuthorize("hasAuthority('CREATE_SUB')")
     public ResponseEntity<?> updateSubscription(
             @PathVariable Integer subscriptionId,
             @RequestBody ServiceSubscriptionRequest req,

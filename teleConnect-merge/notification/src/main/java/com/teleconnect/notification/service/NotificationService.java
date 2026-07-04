@@ -9,7 +9,6 @@ import com.teleconnect.notification.entity.enums.NotificationCategory;
 import com.teleconnect.notification.entity.enums.NotificationStatus;
 import com.teleconnect.notification.exception.ResourceNotFoundException;
 import com.teleconnect.notification.repository.NotificationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
+
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
 
     // ── mapper ────────────────────────────────────────────────────────────────
 

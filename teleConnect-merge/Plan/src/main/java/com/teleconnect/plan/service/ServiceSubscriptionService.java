@@ -6,7 +6,6 @@ import com.teleconnect.plan.entity.ServiceSubscription;
 import com.teleconnect.plan.entity.TelecomPlan;
 import com.teleconnect.plan.repository.ServiceSubscriptionRepository;
 import com.teleconnect.plan.repository.TelecomPlanRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,11 +13,13 @@ import java.util.stream.Collectors;
 @Service
 public class ServiceSubscriptionService {
 
-    @Autowired
-    private ServiceSubscriptionRepository repository;
+    private final ServiceSubscriptionRepository repository;
+    private final TelecomPlanRepository planRepository;
 
-    @Autowired
-    private TelecomPlanRepository planRepository;
+    public ServiceSubscriptionService(ServiceSubscriptionRepository repository, TelecomPlanRepository planRepository) {
+        this.repository = repository;
+        this.planRepository = planRepository;
+    }
 
     private ServiceSubscriptionResponse toDTO(ServiceSubscription s) {
         ServiceSubscriptionResponse dto = new ServiceSubscriptionResponse();

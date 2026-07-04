@@ -8,9 +8,9 @@ import com.teleconnect.common.audit.AuditModule;
 import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.*;
@@ -18,14 +18,17 @@ import java.util.*;
 @RestController
 @RequestMapping("/teleConnect/usage")
 public class UsageController {
-        @Autowired
-        private UsageService usageService;
+        private final UsageService usageService;
+        private final AuditClient auditClient;
 
-        @Autowired
-        private AuditClient auditClient;
+        public UsageController(UsageService usageService, AuditClient auditClient) {
+                this.usageService = usageService;
+                this.auditClient = auditClient;
+        }
 
         // USAGE RECORDING
         @PostMapping("/createRecord")
+        @PreAuthorize("hasAuthority('CREATE_USER')")
         public ResponseEntity<Map<String, String>> createRecord(
                         @Valid @RequestBody UsageRecordRequest req, HttpServletRequest httpReq) {
                 var result = ResponseEntity.status(HttpStatus.CREATED)
@@ -35,12 +38,14 @@ public class UsageController {
         }
 
         @GetMapping("/fetchRecords/{lineId}")
+        @PreAuthorize("hasAuthority('USAGE_RECORDS')")
         public ResponseEntity<Map<String, Object>> fetchByLine(@PathVariable Long lineId) {
                 return ResponseEntity.ok(Map.of("lineId", lineId,
                                 "records", usageService.fetchRecordsByLine(lineId)));
         }
 
         @GetMapping("/fetchRecords/{lineId}/{billingCycleId}")
+        @PreAuthorize("hasAuthority('USAGE_RECORDS')")
         public ResponseEntity<Map<String, Object>> fetchByCycle(
                         @PathVariable Long lineId, @PathVariable Long billingCycleId) {
                 return ResponseEntity.ok(Map.of(
@@ -50,12 +55,14 @@ public class UsageController {
 
         // USAGE SUMMARY
         @GetMapping("/fetchSummary/{lineId}/{billingCycleId}")
+        @PreAuthorize("hasAuthority('USAGE_RECORDS')")
         public ResponseEntity<UsageSummaryResponse> fetchSummary(
                         @PathVariable Long lineId, @PathVariable Long billingCycleId) {
                 return ResponseEntity.ok(usageService.fetchSummary(lineId, billingCycleId));
         }
 
         @PutMapping("/updateSummary/{lineId}/{billingCycleId}")
+        @PreAuthorize("hasAuthority('CREATE_USER')")
         public ResponseEntity<Map<String, Object>> updateSummary(
                         @PathVariable Long lineId, @PathVariable Long billingCycleId,
                         @RequestBody Map<String, Object> body, HttpServletRequest httpReq) {
@@ -76,6 +83,7 @@ public class UsageController {
         // Pass plan limits as query params:
         // ?dataLimitMb=5120&voiceLimitMin=300&smsLimit=100
         @GetMapping("/limitStatus/{lineId}/{billingCycleId}")
+        @PreAuthorize("hasAuthority('USAGE_RECORDS')")
         public ResponseEntity<LimitStatusResponse> getLimitStatus(
                         @PathVariable Long lineId, @PathVariable Long billingCycleId,
                         @RequestParam double dataLimitMb, @RequestParam double voiceLimitMin,
@@ -85,6 +93,7 @@ public class UsageController {
         }
 
         @GetMapping("/remaining/{lineId}/{billingCycleId}")
+        @PreAuthorize("hasAuthority('USAGE_RECORDS')")
         public ResponseEntity<Map<String, Object>> getRemaining(
                         @PathVariable Long lineId, @PathVariable Long billingCycleId) {
                 return ResponseEntity.ok(usageService.getRemainingQuota(lineId, billingCycleId));
@@ -92,6 +101,7 @@ public class UsageController {
 
         // ALERTS
         @GetMapping("/alerts/{lineId}/{billingCycleId}")
+        @PreAuthorize("hasAuthority('USAGE_RECORDS')")
         public ResponseEntity<AlertResponse> getAlerts(
                         @PathVariable Long lineId, @PathVariable Long billingCycleId,
                         @RequestParam double dataLimitMb, @RequestParam double voiceLimitMin,
@@ -102,6 +112,7 @@ public class UsageController {
 
         // ANALYTICS
         @GetMapping("/analytics/{lineId}")
+        @PreAuthorize("hasAuthority('USAGE_ANALYTICS')")
         public ResponseEntity<AnalyticsTrendResponse> getAnalyticsTrend(
                         @PathVariable Long lineId) {
                 return ResponseEntity.ok(usageService.getUsageTrend(lineId));
@@ -109,6 +120,7 @@ public class UsageController {
 
         // GET /teleConnect/usage/analytics/{lineId}/top-usage
         @GetMapping("/analytics/{lineId}/top-usage")
+        @PreAuthorize("hasAuthority('USAGE_ANALYTICS')")
         public ResponseEntity<Map<String, Object>> getTopUsage(
                         @PathVariable Long lineId) {
                 return ResponseEntity.ok(usageService.getTopUsage(lineId));

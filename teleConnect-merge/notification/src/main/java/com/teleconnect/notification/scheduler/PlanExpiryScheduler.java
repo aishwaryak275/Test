@@ -17,8 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class PlanExpiryScheduler {
 
-    @Autowired
-    private NotificationService notificationService;
+    private final NotificationService notificationService;
+
+    public PlanExpiryScheduler(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     @Value("${app.notification.plan-expiry-reminder-days:3}")
     private int reminderDays;

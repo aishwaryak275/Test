@@ -1,16 +1,15 @@
 package com.teleconnect.analytics_service.repository;
 
-import com.teleconnect.analytics_service.entity.SIMLine;
-import com.teleconnect.analytics_service.enums.SIMStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
 import java.time.LocalDate;
 import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.teleconnect.analytics_service.entity.SIMLine;
+import com.teleconnect.analytics_service.enums.SIMStatus;
+
 public interface SIMLineRepository extends JpaRepository<SIMLine, Long> {
 
     List<SIMLine> findByAccountId(Long accountId);

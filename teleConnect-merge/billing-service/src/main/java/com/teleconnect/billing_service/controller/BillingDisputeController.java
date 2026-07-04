@@ -13,6 +13,7 @@ import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +24,13 @@ import java.util.List;
 @RequestMapping("/billing/disputes")
 public class BillingDisputeController {
 
-    @Autowired
-    private BillingDisputeService disputeService;
+    private final BillingDisputeService disputeService;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public BillingDisputeController(BillingDisputeService disputeService, AuditClient auditClient) {
+        this.disputeService = disputeService;
+        this.auditClient = auditClient;
+    }
 
     // ── Static-path endpoints first (must come before /{disputeId}) ────────────
 
@@ -37,6 +40,7 @@ public class BillingDisputeController {
      *         "disputedAmount": 173.60, "description": "..." }
      */
     @PostMapping
+    @PreAuthorize("hasAuthority('BILLING_DISPUTE')")
     public ResponseEntity<MessageResponse> raiseDispute(@Valid @RequestBody DisputeRequest request,
             HttpServletRequest httpReq) {
         disputeService.raiseDispute(request);
@@ -49,6 +53,7 @@ public class BillingDisputeController {
      * GET /teleConnect/billing/disputes/account/{accountId}
      */
     @GetMapping("/account/{accountId}")
+    @PreAuthorize("hasAuthority('BILLING_DISPUTE')")
     public ResponseEntity<List<DisputeResponse>> getDisputesByAccount(
             @PathVariable Long accountId,
             @RequestParam(required = false) DisputeStatus status) {
@@ -60,6 +65,7 @@ public class BillingDisputeController {
      * GET /teleConnect/billing/disputes/invoice/{invoiceId}
      */
     @GetMapping("/invoice/{invoiceId}")
+    @PreAuthorize("hasAuthority('EDIT_DISPUTE')")
     public ResponseEntity<List<DisputeResponse>> getDisputesByInvoice(@PathVariable Long invoiceId) {
         return ResponseEntity.ok(disputeService.getDisputesByInvoice(invoiceId));
     }
@@ -68,6 +74,7 @@ public class BillingDisputeController {
      * GET /teleConnect/billing/disputes/subscriber/{subscriberId}
      */
     @GetMapping("/subscriber/{subscriberId}")
+    @PreAuthorize("hasAuthority('EDIT_DISPUTE')")
     public ResponseEntity<List<DisputeResponse>> getDisputesBySubscriber(@PathVariable Long subscriberId) {
         return ResponseEntity.ok(disputeService.getDisputesBySubscriber(subscriberId));
     }
@@ -76,6 +83,7 @@ public class BillingDisputeController {
      * GET /teleConnect/billing/disputes/status/{status}
      */
     @GetMapping("/status/{status}")
+    @PreAuthorize("hasAuthority('EDIT_DISPUTE')")
     public ResponseEntity<List<DisputeResponse>> getDisputesByStatus(@PathVariable DisputeStatus status) {
         return ResponseEntity.ok(disputeService.getDisputesByStatus(status));
     }
@@ -86,6 +94,7 @@ public class BillingDisputeController {
      * GET /teleConnect/billing/disputes/{disputeId}
      */
     @GetMapping("/{disputeId}")
+    @PreAuthorize("hasAuthority('BILLING_DISPUTE')")
     public ResponseEntity<DisputeResponse> getDispute(@PathVariable Long disputeId) {
         return ResponseEntity.ok(disputeService.getDisputeById(disputeId));
     }
@@ -95,6 +104,7 @@ public class BillingDisputeController {
      * Body: { "assignedTo": "exec-201", "notes": "Reviewing UsageSummary for May cycle" }
      */
     @PutMapping("/{disputeId}/review")
+    @PreAuthorize("hasAuthority('EDIT_DISPUTE')")
     public ResponseEntity<MessageResponse> reviewDispute(
             @PathVariable Long disputeId,
             @Valid @RequestBody DisputeReviewRequest request,
@@ -109,6 +119,7 @@ public class BillingDisputeController {
      * Body: { "resolution": "Resolved", "creditAmount": 173.60, "resolutionNotes": "..." }
      */
     @PutMapping("/{disputeId}/resolve")
+    @PreAuthorize("hasAuthority('EDIT_DISPUTE')")
     public ResponseEntity<DisputeResponse> resolveDispute(
             @PathVariable Long disputeId,
             @Valid @RequestBody DisputeResolveRequest request,
@@ -122,6 +133,7 @@ public class BillingDisputeController {
      * PUT /teleConnect/billing/disputes/{disputeId}/status
      */
     @PutMapping("/{disputeId}/status")
+    @PreAuthorize("hasAuthority('EDIT_DISPUTE')")
     public ResponseEntity<DisputeResponse> updateStatus(
             @PathVariable Long disputeId,
             @RequestParam DisputeStatus status,

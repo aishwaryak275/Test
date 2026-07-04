@@ -4,7 +4,6 @@ import com.teleconnect.iam.dto.request.AuditLogFilterDTO;
 import com.teleconnect.iam.dto.response.AuditLogResponseDTO;
 import com.teleconnect.iam.entity.AuditLog;
 import com.teleconnect.iam.repository.AuditLogRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +12,11 @@ import java.util.stream.Collectors;
 @Service
 public class AuditLogService {
 
-    @Autowired
-    private AuditLogRepository repo;
+    private final AuditLogRepository repo;
+
+    public AuditLogService(AuditLogRepository repo) {
+        this.repo = repo;
+    }
 
     public void log(Long userId, String action, String module, String ip) {
         AuditLog log = new AuditLog();

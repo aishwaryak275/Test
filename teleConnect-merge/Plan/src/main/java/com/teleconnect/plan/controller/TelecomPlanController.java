@@ -8,8 +8,8 @@ import com.teleconnect.common.audit.AuditAction;
 import com.teleconnect.common.audit.AuditModule;
 import com.teleconnect.common.audit.AuditClient;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -17,13 +17,16 @@ import java.util.List;
 @RequestMapping("/plan")
 public class TelecomPlanController {
 
-    @Autowired
-    private TelecomPlanService service;
+    private final TelecomPlanService service;
+    private final AuditClient auditClient;
 
-    @Autowired
-    private AuditClient auditClient;
+    public TelecomPlanController(TelecomPlanService service, AuditClient auditClient) {
+        this.service = service;
+        this.auditClient = auditClient;
+    }
 
     @PostMapping("/createPlans")
+    @PreAuthorize("hasAuthority('MANAGE_PLANS')")
     public ResponseEntity<?> createPlan(
             @RequestBody TelecomPlanRequest req,
             HttpServletRequest httpReq) {
@@ -53,6 +56,7 @@ public class TelecomPlanController {
     }
 
     @GetMapping("/getAllPlans")
+    @PreAuthorize("hasAuthority('VIEW_PLAN')")
     public ResponseEntity<?> getAllPlans() {
         List<TelecomPlanResponse> plans = service.getAllPlans();
         if (plans.isEmpty())
@@ -62,6 +66,7 @@ public class TelecomPlanController {
     }
 
     @GetMapping("/getPlans/{planId}")
+    @PreAuthorize("hasAuthority('VIEW_PLAN')")
     public ResponseEntity<?> getPlanById(
             @PathVariable Integer planId) {
         TelecomPlanResponse plan = service.getPlanById(planId);
@@ -73,6 +78,7 @@ public class TelecomPlanController {
     }
 
     @PutMapping("/updatePlans/{planId}")
+    @PreAuthorize("hasAuthority('MANAGE_PLANS')")
     public ResponseEntity<?> updatePlan(
             @PathVariable Integer planId,
             @RequestBody TelecomPlanRequest req,

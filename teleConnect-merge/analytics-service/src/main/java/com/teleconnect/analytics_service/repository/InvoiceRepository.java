@@ -1,17 +1,16 @@
 package com.teleconnect.analytics_service.repository;
 
-import com.teleconnect.analytics_service.entity.Invoice;
-import com.teleconnect.analytics_service.enums.InvoiceStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import com.teleconnect.analytics_service.entity.Invoice;
+import com.teleconnect.analytics_service.enums.InvoiceStatus;
+
 public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     List<Invoice> findByCycleIdAndStatusIn(Long cycleId, List<InvoiceStatus> statuses);

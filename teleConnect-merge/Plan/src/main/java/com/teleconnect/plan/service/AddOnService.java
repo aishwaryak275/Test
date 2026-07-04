@@ -4,7 +4,6 @@ import com.teleconnect.plan.dto.request.AddOnRequest;
 import com.teleconnect.plan.dto.response.AddOnResponse;
 import com.teleconnect.plan.entity.AddOn;
 import com.teleconnect.plan.repository.AddOnRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,8 +11,11 @@ import java.util.stream.Collectors;
 @Service
 public class AddOnService {
 
-    @Autowired
-    private AddOnRepository repository;
+    private final AddOnRepository repository;
+
+    public AddOnService(AddOnRepository repository) {
+        this.repository = repository;
+    }
 
     private AddOnResponse toDTO(AddOn a) {
         AddOnResponse dto = new AddOnResponse();

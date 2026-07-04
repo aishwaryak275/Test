@@ -1,4 +1,4 @@
-# Launches all five TeleConnect services from their built jars.
+.# Launches all five TeleConnect services from their built jars.
 # Build first with:  .\mvnw.cmd clean install
 # Then run:          .\run-all.ps1        (logs go to .\logs\<service>.log)
 $ErrorActionPreference = "Stop"
